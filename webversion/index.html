@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0b0b" />
+  <title>minuttery</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="stylesheet" href="style.css?v=39" />
+</head>
+
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="minuttery home"><span class="brand-mark">m</span><span>minuttery</span></a>
+    <div class="network-status"><span class="live-dot"></span> Solana devnet</div>
+    <div class="session-cluster">
+      <button id="connectWallet" class="wallet-button" type="button">Login</button>
+      <div id="sessionBar" class="session-bar" hidden>
+        <button id="balanceButton" class="balance-chip" type="button">
+          <span id="balanceLabel">0.00 SOL</span>
+          <svg class="chip-caret" viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M2.2 4.2 6 8l3.8-3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+      <button class="notify-button" type="button" aria-label="Challenge someone" id="inviteButton">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor"
+            d="M3.04 11.16 20.1 3.64c.82-.36 1.6.48 1.2 1.3L14.7 21.1c-.4.86-1.64.78-1.92-.12l-1.86-6.08-6.08-1.86c-.9-.28-.98-1.52-.12-1.92Zm5.2 1.66 3.78 1.16c.22.07.4.24.46.47l1.1 3.6 4.86-11.18-10.2 5.95Z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+  <main class="arena">
+    <section class="game-panel" aria-label="Current round status">
+      <div class="bet-presets" aria-label="Choose bet amount">
+        <button class="bet-preset is-selected" type="button" data-amount="0.1"><span class="bet-label">BET</span>
+          <strong>0.1 ◎</strong></button>
+        <button class="bet-preset" type="button" data-amount="1"><span class="bet-label">BET</span> <strong>1
+            ◎</strong></button>
+        <button class="bet-preset" type="button" data-amount="2"><span class="bet-label">BET</span> <strong>2
+            ◎</strong></button>
+        <button class="bet-preset" type="button" data-amount="5"><span class="bet-label">BET</span> <strong>5
+            ◎</strong></button>
+      </div>
+      <div class="round-header"><span id="roundState">round open</span><span class="round-number">#<strong
+            id="roundNumber">--</strong></span></div>
+      <div class="timer-wrap">
+        <div class="timer" id="timer" aria-live="polite">00:00:00</div>
+        <div class="timer-track"><span id="timerProgress"></span></div>
+        <div class="timer-labels"><span>00:00</span><span>01:00</span></div>
+        <button id="winnerTicker" class="winner-ticker" type="button">Loading recent winners…</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-label">players</span><strong id="playersCount">--</strong></div>
+        <div class="stat"><span class="stat-label">total pot</span><strong><span id="potAmount">--</span>
+            <small>SOL</small></strong></div>
+      </div>
+      <div class="action-area">
+        <button id="betButton" class="bet-button" type="button"><span>Join this round</span></button>
+        <p id="actionMessage" class="action-message">Login to join this round</p>
+      </div>
+    </section>
+    <footer class="footer-note"><span>powered by</span> <strong>minuttery protocol</strong><span
+        class="footer-line"></span><span>every 60 seconds</span></footer>
+  </main>
+
+  <div id="walletModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog login-dialog" role="dialog" aria-modal="true" aria-labelledby="walletTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeWalletModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker">secure access</p>
+      <h2 id="walletTitle">Sign in</h2>
+      <p class="modal-copy">One tap. If you already have a passkey on minuttery, this just brings you back in.</p>
+      <button id="passkeyButton" class="passkey-button" type="button">
+        <span class="passkey-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="currentColor"
+              d="M12 1.8a4.7 4.7 0 0 0-4.7 4.7v2.2H6.4A2.4 2.4 0 0 0 4 11.1v8.4A2.4 2.4 0 0 0 6.4 22h11.2a2.4 2.4 0 0 0 2.4-2.5v-8.4a2.4 2.4 0 0 0-2.4-2.4h-.9V6.5A4.7 4.7 0 0 0 12 1.8Zm0 1.8A2.9 2.9 0 0 1 14.9 6.5v2.2H9.1V6.5A2.9 2.9 0 0 1 12 3.6Z" />
+          </svg>
+        </span>
+        <span>Sign in with passkey</span>
+      </button>
+      <p class="passkey-hint">Face ID, Touch ID or your device passkey</p>
+      <div class="or-row"><span>or connect a wallet</span></div>
+      <div class="wallet-list">
+        <button class="wallet-option" data-wallet="phantom" type="button"><span
+            class="wallet-icon phantom-icon">◆</span><span><strong>Phantom</strong><small id="phantomStatus">Available
+              on this device</small></span></button>
+        <button class="wallet-option" data-wallet="solflare" type="button"><span
+            class="wallet-icon solflare-icon">S</span><span><strong>Solflare</strong><small
+              id="solflareStatus">Available on this device</small></span></button>
+        <button class="wallet-option" data-wallet="backpack" type="button"><span
+            class="wallet-icon backpack-icon">B</span><span><strong>Backpack</strong><small
+              id="backpackStatus">Available on this device</small></span></button>
+      </div>
+      <p id="walletMessage" class="wallet-message"></p>
+    </div>
+  </div>
+
+  <div id="depositModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog sheet-dialog" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeDepositModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <h2 id="depositTitle">Deposit</h2>
+      <p class="modal-copy">Send SOL on Solana to your minuttery address.</p>
+      <p class="sheet-label">Your Solana deposit address</p>
+      <div class="deposit-grid">
+        <div class="deposit-main">
+          <p id="depositAddress" class="deposit-address">—</p>
+          <button id="copyDepositAddress" class="copy-button" type="button">Copy address</button>
+        </div>
+        <canvas id="depositQr" class="deposit-qr" width="120" height="120" aria-hidden="true"></canvas>
+      </div>
+      <div class="deposit-meta">
+        <div><span>Minimum deposit</span><strong>0.11 SOL</strong></div>
+        <div><span>Confirmations</span><strong>1</strong></div>
+        <div><span>Typical arrival</span><strong>~15 sec</strong></div>
+        <div><span>Network fee</span><strong>&lt;0.01 SOL</strong></div>
+      </div>
+      <p class="deposit-warning">Only send assets on the <strong>Solana</strong> network. Assets sent on any other
+        network may be permanently lost.</p>
+    </div>
+  </div>
+
+  <div id="accountModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog sheet-dialog" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeAccountModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker" id="accountMethod">account</p>
+      <h2 id="accountTitle">Player</h2>
+      <p id="accountAddress" class="account-address">—</p>
+      <div class="account-stats">
+        <div><span>Balance</span><strong id="accountBalance">0.00 SOL</strong></div>
+        <div><span>Rounds joined</span><strong id="accountJoined">0</strong></div>
+        <div><span>Rounds won</span><strong id="accountWon">0</strong></div>
+      </div>
+      <div class="money-row">
+        <button id="openDepositFromAccount" class="ghost-button money-action" type="button">Deposit</button>
+        <button id="openWithdrawFromAccount" class="ghost-button money-action" type="button">Withdraw</button>
+      </div>
+      <button id="disconnectWallet" class="ghost-button danger-button" type="button">Log out</button>
+    </div>
+  </div>
+
+  <div id="settleModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog winner-dialog" role="dialog" aria-modal="true" aria-labelledby="settleTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeSettleModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p id="settleKicker" class="modal-kicker">live settlement</p>
+      <h2 id="settleTitle">Calculating winner</h2>
+      <p id="settleCopy" class="modal-copy">The worker is drawing the winner on-chain. This usually lands before second
+        85.</p>
+      <div id="settleSpinner" class="settle-spinner" aria-hidden="true"></div>
+      <p id="settleWinnerLabel" class="winner-address-label" hidden>Winning wallet</p>
+      <p id="settleWinnerAddress" class="winner-address" hidden></p>
+      <a id="settleVerifyLink" class="explorer-link" hidden target="_blank" rel="noreferrer">Verify settlement</a>
+      <details id="settleFairness" class="fairness-details" hidden>
+        <summary>How this winner was proven</summary>
+        <div class="fairness-copy">
+          <p>The worker submits an ECVRF proof. The program checks it against the round commitment (round id, pot and
+            sorted player wallets). The first 8 bytes of the verified output, modulo the number of players, select the
+            winner.</p>
+          <p>Anyone can re-check that transaction on the explorer. If the proof does not match, the program rejects the
+            settlement.</p>
+        </div>
+      </details>
+      <button id="settleRefund" class="bet-button settle-refund" type="button" hidden>Refund this round</button>
+      <button id="settleClose" class="ghost-button" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="historyModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog winner-dialog" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeHistoryModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker">settled rounds</p>
+      <h2 id="historyTitle">Past winners</h2>
+      <p class="modal-copy">Recent rooms settled by the protocol.</p>
+      <div id="historyList" class="history-list">Loading…</div>
+      <div class="history-pager">
+        <button id="historyPrev" class="pager-button" type="button">Previous</button>
+        <span id="historyPageLabel">Page 1</span>
+        <button id="historyNext" class="pager-button" type="button">Next</button>
+      </div>
+      <button id="openClaimSheet" class="ghost-button claim-link" type="button">Unsettled round? Claim a refund</button>
+      <button id="historyClose" class="ghost-button" type="button">Close</button>
+    </div>
+  </div>
+
+  <div id="inviteModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog sheet-dialog" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeInviteModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker">this minute</p>
+      <h2 id="inviteTitle">Challenge someone</h2>
+      <p class="modal-copy">Send a one-minute room. They join the same pot, same clock.</p>
+
+      <textarea id="inviteMessage" class="invite-message" rows="4"></textarea>
+      <div class="share-row">
+        <button class="share-button" data-share="x" type="button">X</button>
+        <button class="share-button" data-share="telegram" type="button">Telegram</button>
+        <button class="share-button" data-share="discord" type="button">Discord</button>
+        <button class="share-button" data-share="copy" type="button">Copy</button>
+      </div>
+
+      <a id="telegramAlerts" class="telegram-follow" href="https://t.me/minuttery" target="_blank" rel="noreferrer">Get
+        round <span class="telegram-follow-highlight">alerts</span> on Telegram
+        <svg class="ticker-chevron" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+          <path d="M4.2 2.2 8 6l-3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div id="withdrawModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog sheet-dialog" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeWithdrawModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker">send SOL</p>
+      <h2 id="withdrawTitle">Withdraw</h2>
+      <p class="modal-copy">Send SOL from this minuttery wallet to another Solana address.</p>
+      <label class="sheet-label" for="withdrawTo">Destination</label>
+      <input id="withdrawTo" class="field-input" type="text" autocomplete="off" spellcheck="false"
+        placeholder="Solana address" />
+      <label class="sheet-label" for="withdrawAmount">Amount</label>
+      <input id="withdrawAmount" class="field-input" type="number" min="0" step="0.01" placeholder="0.00" />
+      <p class="passkey-hint">Keep a little SOL for fees. Typical send is under 0.00001 SOL.</p>
+      <button id="withdrawSend" class="bet-button" type="button"><span>Send SOL</span></button>
+      <p id="withdrawStatus" class="wallet-message"></p>
+    </div>
+  </div>
+
+  <div id="claimModal" class="wallet-modal" hidden>
+    <div class="wallet-dialog sheet-dialog" role="dialog" aria-modal="true" aria-labelledby="claimTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button id="closeClaimModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="modal-kicker">emergency</p>
+      <h2 id="claimTitle">Claim an unsettled round</h2>
+      <p class="modal-copy">Only if the worker missed the settle window (after second 85). Refunds every stake and
+        returns the room rent to the opener.</p>
+      <label class="sheet-label" for="claimRoundId">Round id</label>
+      <input id="claimRoundId" class="field-input" type="number" inputmode="numeric" />
+      <label class="sheet-label" for="claimTier">Room</label>
+      <select id="claimTier" class="field-input"></select>
+      <button id="claimRefund" class="bet-button settle-refund" type="button"><span>Refund this round</span></button>
+      <p id="claimStatus" class="wallet-message"></p>
+    </div>
+  </div>
+
+  <script type="module" src="script.js?v=40"></script>
+</body>
+
+</html>
