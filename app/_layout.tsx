@@ -7,6 +7,7 @@ import { AppProviders } from '@/components/app-providers'
 import { useCallback } from 'react'
 import * as SplashScreen from 'expo-splash-screen'
 import { View } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useTrackLocations } from '@/hooks/use-track-locations'
 import { AppSplashController } from '@/components/app-splash-controller'
 import { useAuth } from '@/components/auth/auth-provider'
@@ -42,14 +43,14 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <AppProviders>
         <AppSplashController />
         <RootNavigator />
-        <StatusBar style="auto" />
+        <StatusBar style="light" />
       </AppProviders>
       <PortalHost />
-    </View>
+    </GestureHandlerRootView>
   )
 }
 

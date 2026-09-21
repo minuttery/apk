@@ -7,9 +7,9 @@ import { AppTheme } from '@/components/app-theme'
 import { AppConfig } from '@/constants/app-config'
 
 const identity = {
-  name: 'Minuttery',
+  name: 'minuttery',
   uri: AppConfig.uri,
-  icon: 'icon.png',
+  icon: 'favicon.png',
 }
 const queryClient = new QueryClient()
 export function AppProviders({ children }: PropsWithChildren) {

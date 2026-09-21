@@ -18,6 +18,11 @@
       },
       "package": "com.anonymous.minutteryapk"
     },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#0a0b0b",
+      "translucent": true
+    },
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -39,9 +44,9 @@
           "backgroundColor": "#0a0b0b",
           "dark": {
             "backgroundColor": "#0a0b0b",
-            "image": "./assets/images/icon.png"
+            "image": "./assets/images/splash-icon.png"
           },
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain"
         }

@@ -4,7 +4,7 @@ import { ClusterNetwork } from '@/components/cluster/cluster-network'
 
 export class AppConfig {
   static name = 'minuttery'
-  static uri = 'https://github.com/0xNicko/minuttery'
+  static uri = 'https://minuttery.com'
   static clusters: Cluster[] = [
     {
       id: 'solana:devnet',
