@@ -14,7 +14,7 @@ Although a web version exists, the APK has its own native interface. The Android
 
 ## Playing together: APK + desktop web + mobile web
 
-All three clients can participate in the same rounds: they share the Solana program and each room's accounts. Players do not need to be on the same Wi-Fi network.
+All three clients can participate in the same rounds: they share the Solana program and each room's accounts.
 
 1. Each player opens their client:
    - **Android:** install and open the APK, then connect a wallet compatible with Mobile Wallet Adapter.
