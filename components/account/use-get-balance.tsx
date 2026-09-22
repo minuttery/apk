@@ -6,14 +6,21 @@ export function useGetBalanceQueryKey({ address, endpoint }: { address: PublicKe
   return ['get-balance', { endpoint, address }]
 }
 
-export function useGetBalance({ address }: { address?: PublicKey | null }) {
+export function useGetBalance({
+  address,
+  refetchInterval = false,
+}: {
+  address?: PublicKey | null
+  refetchInterval?: number | false
+}) {
   const { connection } = useMobileWallet()
   const queryKey = useGetBalanceQueryKey({ address: address as PublicKey, endpoint: connection.rpcEndpoint })
 
   return useQuery({
     queryKey,
     enabled: Boolean(address),
-    queryFn: () => connection.getBalance(address as PublicKey),
+    refetchInterval,
+    queryFn: () => connection.getBalance(address as PublicKey, 'confirmed'),
   })
 }
 

@@ -8,7 +8,7 @@ import Clipboard from '@react-native-clipboard/clipboard'
 import { Connection, PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
 import { useMobileWallet } from '@wallet-ui/react-native-web3js'
 import { Buffer } from 'buffer'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -197,7 +197,8 @@ export function GameFeature() {
     [selectedCluster.endpoint, walletConnection],
   )
   const payer = playerAddress ?? account?.address ?? null
-  const balanceQuery = useGetBalance({ address: (payer ?? account?.address) as PublicKey })
+  const balanceQuery = useGetBalance({ address: payer, refetchInterval: 5_000 })
+  const { refetch: refreshBalance } = balanceQuery
   const [selectedTier, setSelectedTier] = useState(0)
   const [now, setNow] = useState(() => Date.now())
   const [players, setPlayers] = useState(0)
@@ -228,7 +229,6 @@ export function GameFeature() {
   const [claimRoundId, setClaimRoundId] = useState('')
   const [claimTier, setClaimTier] = useState(0)
   const [claimStatus, setClaimStatus] = useState('')
-  const settleKeyRef = useRef('')
 
   const roundId = roundIdAt(now)
   const elapsed = ((now % ROUND_MS) + ROUND_MS) % ROUND_MS
@@ -262,7 +262,7 @@ export function GameFeature() {
       cancelled = true
       clearInterval(poll)
     }
-  }, [payer, connection, roundId, selectedTier])
+  }, [payer, connection, roundId, selectedTier, joinedRound])
 
   useEffect(() => {
     let cancelled = false
@@ -326,19 +326,22 @@ export function GameFeature() {
     }
   }, [historyPage, winnersOpen])
 
+  // Keep the watcher alive across clock ticks and the next minute.
+  const settlementDue =
+    joinedRound !== null &&
+    ((roundId === joinedRound.roundId && seconds >= BETTING_CLOSES_AT) || roundId > joinedRound.roundId)
+
   useEffect(() => {
-    if (!joinedRound) return
+    if (!joinedRound || !settlementDue) return
     const watching = joinedRound
-    const shouldOpen = (roundId === watching.roundId && seconds >= BETTING_CLOSES_AT) || roundId > watching.roundId
-    if (!shouldOpen) return
-    const key = `${watching.roundId}:${watching.tier}`
-    if (settleKeyRef.current === key) return
-    settleKeyRef.current = key
-    setSettlePhase('calculating')
-    setSettleRow(null)
-    setSettleOpen(true)
     let cancelled = false
     const startedAt = Date.now()
+    const controller = new AbortController()
+    const waitingTimer = setTimeout(() => setSettlePhase('waiting'), 30_000)
+    const stopTimer = setTimeout(() => {
+      cancelled = true
+      controller.abort()
+    }, 70_000)
     async function poll() {
       while (!cancelled) {
         try {
@@ -347,33 +350,50 @@ export function GameFeature() {
             roundId: String(watching.roundId),
             tier: String(watching.tier),
           })
-          const response = await fetch(`${WINNERS_API}/winners?${params}`)
+          const response = await fetch(`${WINNERS_API}/winners?${params}`, {
+            cache: 'no-store',
+            headers: { Accept: 'application/json' },
+            signal: controller.signal,
+          })
+          if (!response.ok) throw new Error(`Winners API ${response.status}`)
           const payload = await response.json()
-          const rows: WinnerRow[] = Array.isArray(payload) ? payload : (payload.rows ?? payload.items ?? [])
-          const row =
-            rows.find((item) => Number(item.roundId) === watching.roundId && Number(item.tier) === watching.tier) ||
-            rows.find((item) => Number(item.roundId) === watching.roundId)
+          if (cancelled) return
+          const rows: WinnerRow[] = Array.isArray(payload)
+            ? payload
+            : (payload.rows ?? payload.items ?? payload.winners ?? [])
+          const row = rows.find(
+            (item) => Number(item.roundId) === watching.roundId && Number(item.tier) === watching.tier,
+          )
           if (row?.winner || row?.kind === 'refunded') {
-            const count = Number(row.n ?? 0)
+            clearTimeout(waitingTimer)
+            clearTimeout(stopTimer)
+            const count = row.n == null ? null : Number(row.n)
             setSettleRow(row)
-            setSettlePhase(count <= 1 || row.kind === 'refunded' ? 'solo' : 'winner')
+            setSettlePhase((count !== null && count <= 1) || row.kind === 'refunded' ? 'solo' : 'winner')
+            void refreshBalance()
             return
           }
         } catch {
           // keep polling through API blips
         }
-        if (Date.now() - startedAt >= 30_000) {
-          setSettlePhase('waiting')
-          return
-        }
+        if (cancelled || Date.now() - startedAt >= 70_000) return
         await new Promise((resolve) => setTimeout(resolve, 2000))
       }
     }
-    void poll()
+    const startTimer = setTimeout(() => {
+      setSettlePhase('calculating')
+      setSettleRow(null)
+      setSettleOpen(true)
+      void poll()
+    }, 0)
     return () => {
       cancelled = true
+      clearTimeout(startTimer)
+      controller.abort()
+      clearTimeout(waitingTimer)
+      clearTimeout(stopTimer)
     }
-  }, [joinedRound, roundId, seconds])
+  }, [joinedRound, settlementDue, refreshBalance])
 
   const timer = useMemo(
     () => `00:${String(seconds).padStart(2, '0')}:${String(centiseconds).padStart(2, '0')}`,
@@ -415,9 +435,14 @@ export function GameFeature() {
       } else {
         signature = await signAndSendTransactions(transaction, 0)
       }
-      await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed')
+      const confirmation = await connection.confirmTransaction(
+        { signature, blockhash, lastValidBlockHeight },
+        'confirmed',
+      )
+      if (confirmation.value.err) throw new Error('The transaction failed on-chain.')
+      // Refresh the confirmed count; the periodic poll may already include this bet.
       setJoinedRound({ roundId, tier: selectedTier })
-      setPlayers((value) => value + 1)
+      void refreshBalance()
     } catch (error) {
       showError('Could not join round', error)
     } finally {
@@ -455,7 +480,7 @@ export function GameFeature() {
       const signature = await sendSigned(new VersionedTransaction(message))
       await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed')
       setWithdrawStatus(`Sent ${amountSol} SOL`)
-      void balanceQuery.refetch?.()
+      void refreshBalance()
     } catch (error) {
       setWithdrawStatus(error instanceof Error ? error.message : 'Withdraw failed')
     } finally {
@@ -504,6 +529,7 @@ export function GameFeature() {
       }).compileToV0Message()
       const signature = await sendSigned(new VersionedTransaction(message))
       await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed')
+      void refreshBalance()
       setClaimStatus('Refund submitted.')
       setSettlePhase('solo')
     } catch (error) {

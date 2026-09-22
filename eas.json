@@ -30,6 +30,18 @@
         "buildType": "apk"
       },
       "channel": "production"
+    },
+    "google-play": {
+      "extends": "production",
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "solana-store": {
+      "extends": "production",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

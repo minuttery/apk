@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "minutteryapk",
+    "name": "minuttery",
     "slug": "minutteryapk",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0a0b0b"
+        "backgroundColor": "#f1ff0a"
       },
       "package": "com.anonymous.minutteryapk"
     },
