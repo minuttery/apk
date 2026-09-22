@@ -10,9 +10,7 @@ This repository contains the **Android app generated with Expo and built with Re
 
 **Designed for mobile from the ground up.** The Android experience uses native React Native components: a portrait layout, touch controls, gesture-dismissable bottom sheets, animations, support for device safe areas, and the native share menu for invitations. Wallet connections use Mobile Wallet Adapter; Seed Vault integration is also available for compatible Solana Mobile devices.
 
-Although a web version exists, the APK has its own native interface. The Android game is implemented in [`components/game/game-feature.tsx`](./components/game/game-feature.tsx), while the browser client lives in `webversion/`.
-
-This addresses the design criterion: “Design for mobile from the ground up. Direct ports or PWA wrappers will score poorly.” The APK is neither a direct port of the website nor a PWA wrapped in a WebView.
+Although a web version exists, the APK has its own native interface. The Android game is implemented in [`components/game/game-feature.tsx`](./components/game/game-feature.tsx).
 
 ## Playing together: APK + desktop web + mobile web
 
