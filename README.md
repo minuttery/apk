@@ -16,12 +16,9 @@ services/
   workers/                Round settlement worker and results API
 programs/
   minuttery/              Anchor workspace for the Solana program
-packages/
-  solana-client/          Reserved for shared Solana client code
-  shared/                 Reserved for shared types and validation
 ```
 
-The repository uses npm workspaces and one `package-lock.json` at the root. Install dependencies with `npm ci` from the repository root. The mobile app keeps its existing dependencies and scripts in `apps/mobile/package.json`; the shared packages contain documentation only until their implementations arrive. The worker and results API live in `services/workers/`. The Solana workspace in `programs/minuttery` keeps its own Yarn and Cargo lockfiles. Rust programs keep their own Cargo/Anchor tooling.
+The repository uses npm workspaces and one `package-lock.json` at the root. Install dependencies with `npm ci` from the repository root. The mobile app keeps its existing dependencies and scripts in `apps/mobile/package.json`. The worker and results API live in `services/workers/`. The Solana workspace in `programs/minuttery` keeps its own Yarn and Cargo lockfiles. Rust programs keep their own Cargo/Anchor tooling.
 
 **Expo and EAS commands run from `apps/mobile`.** Its `app.json` and `eas.json` retain the same project ID, Android application ID, runtime policy, update URL, channels, and build profiles. No new Expo project or credentials are needed for this move. For an existing checkout, restart Metro from the new directory with `npx expo start --clear` once.
 

@@ -4,8 +4,7 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "services/*",
-    "packages/*"
+    "services/*"
   ],
   "scripts": {
     "android": "npm run android --workspace=minutteryapk --",
