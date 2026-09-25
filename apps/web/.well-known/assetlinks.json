@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.anonymous.minutteryapk",
+      "sha256_cert_fingerprints": [
+        "F0:34:A7:2B:71:23:58:8D:A4:D5:4D:F9:18:CE:9F:B8:01:FC:55:D2:AB:27:24:FA:50:BA:4C:0D:B4:2B:F0:A1"
+      ]
+    }
+  }
+]

@@ -1,0 +1,10 @@
+node_modules/
+.npm/
+.env
+.env.*
+!.env.example
+secrets/
+*-keypair.json
+*.db
+*.db-*
+*.backup

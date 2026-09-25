@@ -1,0 +1,467 @@
+{
+  "address": "9Uf52hSPJPDqDj7QFqL5dKmdJseU1pRtzL8oNQGeDxrP",
+  "metadata": {
+    "name": "minuttery",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "operator",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "house",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "liquidate_round",
+      "discriminator": [
+        38,
+        41,
+        174,
+        86,
+        181,
+        41,
+        53,
+        111
+      ],
+      "accounts": [
+        {
+          "name": "liquidator",
+          "signer": true
+        },
+        {
+          "name": "house",
+          "writable": true
+        },
+        {
+          "name": "winner",
+          "writable": true
+        },
+        {
+          "name": "opener",
+          "writable": true,
+          "docs": [
+            "Jugador 1. Recibe 0.5% + rent (close)."
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "room_tier"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "i64"
+        },
+        {
+          "name": "room_tier",
+          "type": "u8"
+        },
+        {
+          "name": "proof_bytes",
+          "type": {
+            "array": [
+              "u8",
+              80
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "place_bet",
+      "discriminator": [
+        222,
+        62,
+        67,
+        220,
+        63,
+        166,
+        126,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "player",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "room_tier"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "i64"
+        },
+        {
+          "name": "room_tier",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "refund_all",
+      "docs": [
+        "Cualquiera, después del grace. Devuelve cada apuesta y el rent al opener."
+      ],
+      "discriminator": [
+        174,
+        87,
+        222,
+        126,
+        23,
+        59,
+        189,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "signer": true
+        },
+        {
+          "name": "opener",
+          "writable": true
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "room_tier"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "i64"
+        },
+        {
+          "name": "_room_tier",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "RoundState",
+      "discriminator": [
+        153,
+        242,
+        39,
+        64,
+        102,
+        34,
+        239,
+        11
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "BettingClosed",
+      "msg": "Betting for this round is already closed."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "The bet amount is invalid."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidRoomTier",
+      "msg": "The selected room tier is invalid."
+    },
+    {
+      "code": 6003,
+      "name": "InvalidRoundId",
+      "msg": "The provided round ID does not match the current time."
+    },
+    {
+      "code": 6004,
+      "name": "RoundFull",
+      "msg": "This round has reached its maximum capacity."
+    },
+    {
+      "code": 6005,
+      "name": "InvalidWinnerAccount",
+      "msg": "The provided account does not match the expected winner."
+    },
+    {
+      "code": 6006,
+      "name": "InvalidOpener",
+      "msg": "The provided account does not match the round opener."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidOperatorKey",
+      "msg": "Invalid ECVRF operator public key."
+    },
+    {
+      "code": 6008,
+      "name": "AlreadyJoined",
+      "msg": "Player already joined this round."
+    },
+    {
+      "code": 6009,
+      "name": "TooEarlyToSettle",
+      "msg": "Too early to settle."
+    },
+    {
+      "code": 6010,
+      "name": "SettleWindowClosed",
+      "msg": "Settle window closed; use refund_all."
+    },
+    {
+      "code": 6011,
+      "name": "InvalidHouse",
+      "msg": "House account does not match config."
+    },
+    {
+      "code": 6012,
+      "name": "InvalidProof",
+      "msg": "ECVRF proof failed."
+    },
+    {
+      "code": 6013,
+      "name": "EmptyRound",
+      "msg": "Round has no players."
+    },
+    {
+      "code": 6014,
+      "name": "NotExpired",
+      "msg": "Round has not expired."
+    },
+    {
+      "code": 6015,
+      "name": "InvalidSeatAccount",
+      "msg": "Invalid player account for refund."
+    },
+    {
+      "code": 6016,
+      "name": "SeatCountMismatch",
+      "msg": "Player account count does not match the round."
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "operator",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "house",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "n",
+            "type": "u8"
+          },
+          {
+            "name": "players",
+            "type": {
+              "array": [
+                "pubkey",
+                24
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+.anchor
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+
+# Local wallet and ECVRF operator keys
+.solana/
+*-keypair.json
+.env
+.env.*
+!.env.example

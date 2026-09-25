@@ -17,7 +17,7 @@ import {
   RPC_ENDPOINT,
   TELEGRAM_URL,
   WINNERS_PAGE_SIZE,
-} from "./config.js?v=39";
+} from "./config.js?v=41";
 import {
   elapsedInRound,
   localRoundId,
@@ -284,17 +284,13 @@ function applyHostCopy() {
   const seconds = roundSeconds();
   if (seconds >= BETTING_CLOSES_AT) {
     elements.state.textContent = "betting closed";
-    if (!userJoinedThisRound()) {
-      setMessage("The next round starts in a few seconds");
-    }
+    setMessage(userJoinedThisRound()
+      ? "Drawing the winner on-chain…"
+      : "Next minute opens in a few seconds");
     return;
   }
   elements.state.textContent = "round open";
-  if (!walletPublicKey) {
-    setMessage("Login to join this round");
-    return;
-  }
-  if (knownPlayers === 0) setMessage(HOST_COPY);
+  if (!betInFlight) setMessage(knownPlayers === 0 ? HOST_COPY : "Join before second 55.");
 }
 
 function applyPlayerCount(count) {
@@ -818,12 +814,12 @@ async function openDepositSheet() {
 function openAccountSheet() {
   if (!walletPublicKey) return openWalletModal();
   const address = walletPublicKey.toBase58();
-  elements.accountTitle.textContent = handleFromPubkey(address);
+  elements.accountTitle.textContent = "Your profile";
   elements.accountAddress.textContent = address;
-  elements.accountBalance.textContent = `${(walletBalanceSol ?? 0).toFixed(4)} SOL`;
+  elements.accountBalance.innerHTML = `${(walletBalanceSol ?? 0).toFixed(2)} <span class="account-sol">SOL</span>`;
   elements.accountJoined.textContent = String(joinedCount);
   elements.accountWon.textContent = String(wonCount);
-  elements.accountMethod.textContent = walletKind === "passkey" ? "connected with passkey" : "connected with wallet";
+  elements.accountMethod.textContent = walletKind === "passkey" ? "signed in with passkey" : "connected wallet";
   openModal(elements.accountModal);
 }
 
@@ -1024,7 +1020,6 @@ function bindChrome() {
     loadPastWinners();
   });
   document.getElementById("closeHistoryModal").addEventListener("click", () => closeModal(elements.historyModal));
-  document.getElementById("historyClose").addEventListener("click", () => closeModal(elements.historyModal));
   elements.historyPrev.addEventListener("click", () => {
     if (historyPage === 0) return;
     historyPage -= 1;

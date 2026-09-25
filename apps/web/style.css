@@ -1283,3 +1283,140 @@ button {
     transition: none !important;
   }
 }
+/* Profile and history share the Android sheet layout. */
+:is(#accountModal, #historyModal) .wallet-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(440px, 100%);
+  max-height: 88dvh;
+  padding: 14px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 18px;
+  box-shadow: none;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+:is(#accountModal, #historyModal) .sheet-handle {
+  display: block;
+  flex-shrink: 0;
+  width: 48px;
+  height: 5px;
+  margin: 16px auto 15px;
+  border-radius: 4px;
+  background: var(--muted);
+  touch-action: none;
+}
+:is(#accountModal, #historyModal) .modal-kicker {
+  margin: 8px 0 0;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+:is(#accountModal, #historyModal) h2 {
+  margin: 0;
+  font-size: 30px;
+}
+:is(#accountModal, #historyModal) .modal-copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+#accountModal .account-address {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+}
+#accountModal .account-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 16px 0;
+}
+#accountModal .account-stats > div {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+#accountModal .account-stats > div > span {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+}
+#accountModal .account-stats strong {
+  font-size: 17px;
+}
+#accountModal .account-sol {
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+#accountModal .money-action,
+#historyModal .claim-link {
+  padding: 14px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+#openDepositFromAccount {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+#accountModal #disconnectWallet {
+  margin: 0;
+  padding: 8px;
+  border: 0;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+#historyModal .history-list {
+  min-height: 0;
+  max-height: 360px;
+  flex: 0 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  touch-action: pan-y;
+}
+#historyModal .history-line { font-size: 12px; }
+#historyModal .history-wallet { font-size: 13px; }
+#historyModal .history-meta { font-size: 11px; }
+#historyModal .explorer-link { font-size: 12px; margin-top: 4px; }
+#historyModal .history-pager { margin-top: 0; flex-shrink: 0; }
+#historyModal .pager-button { border-radius: 12px; font-size: 11px; letter-spacing: 1px; }
+#historyModal .claim-link { margin: 6px 0 0; flex-shrink: 0; }
+@media (max-width: 760px) {
+  :is(#accountModal, #historyModal) .wallet-dialog {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+/* Keep the repository credit centered on one line on narrow phones. */
+.footer-note {
+  right: 0;
+  justify-content: center;
+  font-size: clamp(7px, 2.1vw, 9px);
+  letter-spacing: .04em;
+}
+.footer-repo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.4vw, 8px);
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.footer-repo .footer-line {
+  width: clamp(10px, 4vw, 30px);
+  flex-shrink: 0;
+}
+.footer-repo:hover strong { color: var(--accent); }
+.footer-repo:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }

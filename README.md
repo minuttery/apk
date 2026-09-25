@@ -2,15 +2,52 @@
 
 Minuttery is a lottery game on Solana with one-minute rounds. Each player connects their wallet, chooses a room, and enters a shared prize pool. The interface displays the countdown, player count, prize pool, and results, with links to view transactions on Solana Explorer.
 
-This repository contains the **Android app generated with Expo and built with React Native and TypeScript**, alongside the web client in [`webversion/`](./webversion). The included configuration uses **Solana Devnet and test SOL**.
+This monorepo contains the **Android app generated with Expo and built with React Native and TypeScript** in [`apps/mobile/`](./apps/mobile), alongside the web client in [`apps/web/`](./apps/web). The included configuration uses **Solana Devnet and test SOL**.
 
-[Web version](https://minuttery.com) · [Repository releases](https://github.com/minuttery/apk/releases)
+[Web version](https://minuttery.com) · [Repository releases](https://github.com/minuttery/minuttery/releases)
+
+## Repository layout
+
+```text
+apps/
+  mobile/                 Expo / React Native Android app
+  web/                    Existing standalone web client
+services/
+  workers/                Round settlement worker and results API
+programs/
+  minuttery/              Anchor workspace for the Solana program
+packages/
+  solana-client/          Reserved for shared Solana client code
+  shared/                 Reserved for shared types and validation
+```
+
+The repository uses npm workspaces and one `package-lock.json` at the root. Install dependencies with `npm ci` from the repository root. The mobile app keeps its existing dependencies and scripts in `apps/mobile/package.json`; the shared packages contain documentation only until their implementations arrive. The worker and results API live in `services/workers/`. The Solana workspace in `programs/minuttery` keeps its own Yarn and Cargo lockfiles. Rust programs keep their own Cargo/Anchor tooling.
+
+**Expo and EAS commands run from `apps/mobile`.** Its `app.json` and `eas.json` retain the same project ID, Android application ID, runtime policy, update URL, channels, and build profiles. No new Expo project or credentials are needed for this move. For an existing checkout, restart Metro from the new directory with `npx expo start --clear` once.
+
+The root npm scripts forward to the mobile workspace, so `npm run dev`, `npm run android`, `npm run build:apk`, and the other existing npm scripts also work from the repository root. Arguments are forwarded, for example `npm run dev -- --clear`. Direct `npx expo ...` and `npx eas-cli ...` commands must run inside `apps/mobile`.
+
+```bash
+# From the repository root:
+npm ci
+cd apps/mobile
+
+# Same EAS commands and profile/channel as before:
+npx eas-cli@latest build --platform android --profile approval
+npx eas-cli@latest update --channel approval --message "Describe the change"
+```
+
+This follows Expo's [npm workspace support](https://docs.expo.dev/guides/monorepos/) and [EAS monorepo layout](https://docs.expo.dev/build-reference/build-with-monorepos/). Each application or service will have its own deployment process. A coordinated source change does not automatically update already-installed APKs.
+
+## Solana program
+
+The Anchor workspace lives in [`programs/minuttery/`](./programs/minuttery/README.md). From that folder, use `yarn install --frozen-lockfile`, `anchor build`, `anchor deploy`, and `anchor test --skip-deploy` for tests against the existing Devnet deployment. See its README for toolchain requirements, the original deployment/operator keys, and the external settlement worker required by the integration tests. Mobile Expo/EAS commands and dependencies remain independent.
 
 ## Designed for mobile from the ground up
 
 **Designed for mobile from the ground up.** The Android experience uses native React Native components: a portrait layout, touch controls, gesture-dismissable bottom sheets, animations, support for device safe areas, and the native share menu for invitations. Wallet connections use Mobile Wallet Adapter; Seed Vault integration is also available for compatible Solana Mobile devices.
 
-Although a web version exists, the APK has its own native interface. The Android game is implemented in [`components/game/game-feature.tsx`](./components/game/game-feature.tsx), while the browser client lives in `webversion/`.
+Although a web version exists, the APK has its own native interface. The Android game is implemented in [`apps/mobile/components/game/game-feature.tsx`](./apps/mobile/components/game/game-feature.tsx), while the browser client lives in `apps/web/`.
 
 This addresses the design criterion: “Design for mobile from the ground up. Direct ports or PWA wrappers will score poorly.” The APK is neither a direct port of the website nor a PWA wrapped in a WebView.
 
@@ -49,9 +86,10 @@ For a local installation to participate alongside the other clients, everyone mu
 ### Installation
 
 ```bash
-git clone https://github.com/minuttery/apk.git
-cd apk
+git clone https://github.com/minuttery/minuttery.git
+cd minuttery
 npm ci
+cd apps/mobile
 ```
 
 Connect your phone or start the emulator, then run:
@@ -61,7 +99,7 @@ adb devices
 npm run android
 ```
 
-`npm run android` runs `expo run:android`: it generates the Android project if needed, builds and installs the app, and starts Metro. The `android/` directory is generated with Expo and excluded from Git.
+`npm run android` runs `expo run:android`: it generates the Android project if needed, builds and installs the app, and starts Metro. The `apps/mobile/android/` directory is generated with Expo and excluded from Git.
 
 To start Metro in subsequent sessions:
 
@@ -77,29 +115,29 @@ adb reverse tcp:8081 tcp:8081
 
 This app requires its own native build because of its wallet, passkey, and cryptography dependencies. **Expo Go is not sufficient**; see the [Expo documentation on native code](https://docs.expo.dev/workflow/customizing/).
 
-You do not need an `.env` file to use the included configuration. The network is defined in [`constants/app-config.ts`](./constants/app-config.ts); the program and results API are defined in `components/game/game-feature.tsx`. For an initial local test, use a wallet connection: native passkeys use the `minuttery.com` domain and require a valid association between the domain and the app's signing identity.
+You do not need an `.env` file to use the included configuration. The network is defined in [`apps/mobile/constants/app-config.ts`](./apps/mobile/constants/app-config.ts); the program and results API are defined in `apps/mobile/components/game/game-feature.tsx`. For an initial local test, use a wallet connection: native passkeys use the `minuttery.com` domain and require a valid association between the domain and the app's signing identity.
 
 ## Run the web client locally
 
-The browser client in this repository is located in `webversion/`. You can serve it with Python 3 from the project root:
+The browser client in this repository is located in `apps/web/`. You can preview it with Python 3 from the project root:
 
 ```bash
-python3 -m http.server 8080 --directory webversion
+python3 scripts/preview-web.py
 ```
 
 Open `http://localhost:8080`. No Expo build is required, but Internet access is needed to load dependencies from CDNs and connect to Solana.
 
 To view it from another phone on the same network, open `http://<your-computer-local-IP>:8080`. This lets you test the interface; passkeys require a secure context, such as HTTPS or `localhost`. To test authentication from another device, use an HTTPS origin and a compatible wallet or passkey.
 
-**Scope of the local setup:** this repository contains the clients, but not the Solana contract or the service that processes rounds and publishes their results. Running the app on your computer still depends on the deployed program and those external services.
+**Scope of the local setup:** this repository contains the clients and the [Solana program](./programs/minuttery/README.md), and the [worker and results API](./services/workers/README.md) that process rounds and publish results. Running the app on your computer still depends on the deployed program and running worker/API services; copying their source does not start them.
 
-In [`webversion/config.js`](./webversion/config.js), `API_BASE` is empty: requests to `/winners` use the same origin. A local static server does not implement that route, so history and server synchronization will not be available on their own. To test them, set `API_BASE` to a compatible API that allows your origin through CORS, or use a proxy that serves `/winners`. The Android client queries `https://minuttery.com/winners`.
+In [`apps/web/config.js`](./apps/web/config.js), `API_BASE` is empty: requests to `/winners` use the same origin. The preview server forwards read-only API requests to `https://minuttery.com`, so history and server synchronization use the production service while the page files are local. A plain static server does not provide these API routes. The Android client queries `https://minuttery.com/winners`.
 
 The `npm run web` script starts the Expo browser entry point, but the instructions above apply to the standalone web client included in this repository; the native dependencies do not guarantee web compatibility for the Expo entry point.
 
 ## Build and distribute the APK
 
-To generate a local debug APK:
+Run the commands in this section from `apps/mobile`. To generate a local debug APK:
 
 ```bash
 npx expo prebuild -p android
@@ -118,9 +156,9 @@ npx eas-cli@latest login
 npx eas-cli@latest build --platform android --profile approval
 ```
 
-This workflow requires an Expo account with access to the configured project. If you cloned the repository for your own project, configure your EAS project and its identifiers in `app.json`, including the updates URL, before building or publishing updates. Local development builds do not require access to the team's EAS project.
+This workflow requires an Expo account with access to the configured project. If you cloned the repository for your own project, configure your EAS project and its identifiers in `apps/mobile/app.json`, including the updates URL, before building or publishing updates. Local development builds do not require access to the team's EAS project.
 
-**Recommended distribution:** attach the APK to a [GitHub Release](https://github.com/minuttery/apk/releases), together with its version and installation instructions. This makes it available from the repository without adding binaries to Git history. GitHub supports releases for [distributing binary files](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases). The releases link does not imply that an APK has already been published.
+**Recommended distribution:** attach the APK to a [GitHub Release](https://github.com/minuttery/minuttery/releases), together with its version and installation instructions. This makes it available from the repository without adding binaries to Git history. GitHub supports releases for [distributing binary files](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases). The releases link does not imply that an APK has already been published.
 
 To install a downloaded APK, open it on Android and allow installation from that source when prompted by the system.
 
@@ -136,9 +174,11 @@ Changes to native dependencies or configuration require rebuilding the APK and m
 
 ## Development checks
 
+From the repository root:
+
 ```bash
 npm run lint:check
-npx tsc --noEmit
+npm exec --workspace=minutteryapk -- tsc --noEmit
 ```
 
 ## License

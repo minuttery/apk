@@ -43,12 +43,3 @@ app-example
 # https://docs.expo.dev/workflow/continuous-native-generation/
 /android
 /ios
-/apps/mobile/android
-/apps/mobile/ios
-
-# Solana / Rust build artifacts
-/programs/**/target/
-/programs/**/.anchor/
-
-# Worker development artifacts
-.wrangler/
