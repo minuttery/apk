@@ -5,10 +5,12 @@ Static web snapshot imported from the VM's `minuttery` folder, including favicon
 From the repository root:
 
 ```bash
-python3 scripts/preview-web.py
+python3 -m http.server 8080 --directory apps/web
 ```
 
-Open http://localhost:8080 (or forward port 8080 in Codespaces). The preview serves local web files and proxies GET requests for `/winners`, `/sync`, and `/stats/` to `https://minuttery.com`, so the existing same-origin API configuration can display production results. It does not start the settlement worker. Internet access is required for the API, Solana RPC, and CDN dependencies.
+Open http://localhost:8080 (or forward port 8080 in Codespaces). The static server serves local web files but does not provide `/winners`, `/sync`, or `/stats/`. Configure an API or a local proxy to display results. The optional local `scripts/preview-web.py` proxy is excluded from Git and is not included in new clones. Neither preview starts the settlement worker. Internet access is required for the API, Solana RPC, and CDN dependencies.
+
+For the optional local proxy, use `python3 scripts/preview-web.py`; it supports `--port`.
 
 Passkey authentication remains tied to the production domain and is not validated by a preview on another hostname. This preview is for development, not a production server.
 

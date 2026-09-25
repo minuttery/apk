@@ -52,3 +52,7 @@ app-example
 
 # Worker development artifacts
 .wrangler/
+
+# Local editor settings and development scripts
+/.vscode/
+/scripts/

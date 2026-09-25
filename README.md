@@ -120,7 +120,7 @@ You do not need an `.env` file to use the included configuration. The network is
 The browser client in this repository is located in `apps/web/`. You can preview it with Python 3 from the project root:
 
 ```bash
-python3 scripts/preview-web.py
+python3 -m http.server 8080 --directory apps/web
 ```
 
 Open `http://localhost:8080`. No Expo build is required, but Internet access is needed to load dependencies from CDNs and connect to Solana.
@@ -129,7 +129,7 @@ To view it from another phone on the same network, open `http://<your-computer-l
 
 **Scope of the local setup:** this repository contains the clients and the [Solana program](./programs/minuttery/README.md), and the [worker and results API](./services/workers/README.md) that process rounds and publish results. Running the app on your computer still depends on the deployed program and running worker/API services; copying their source does not start them.
 
-In [`apps/web/config.js`](./apps/web/config.js), `API_BASE` is empty: requests to `/winners` use the same origin. The preview server forwards read-only API requests to `https://minuttery.com`, so history and server synchronization use the production service while the page files are local. A plain static server does not provide these API routes. The Android client queries `https://minuttery.com/winners`.
+In [`apps/web/config.js`](./apps/web/config.js), `API_BASE` is empty: requests to `/winners` use the same origin. This static server does not provide API routes. For history and synchronization, configure an API or a local proxy. The optional local `scripts/preview-web.py` proxy is excluded from Git and is not included in new clones. The Android client queries `https://minuttery.com/winners`.
 
 The `npm run web` script starts the Expo browser entry point, but the instructions above apply to the standalone web client included in this repository; the native dependencies do not guarantee web compatibility for the Expo entry point.
 
