@@ -47,13 +47,11 @@ The Anchor workspace lives in [`programs/minuttery/`](./programs/minuttery/READM
 
 **Designed for mobile from the ground up.** The Android experience uses native React Native components: a portrait layout, touch controls, gesture-dismissable bottom sheets, animations, support for device safe areas, and the native share menu for invitations. Wallet connections use Mobile Wallet Adapter; Seed Vault integration is also available for compatible Solana Mobile devices.
 
-Although a web version exists, the APK has its own native interface. The Android game is implemented in [`apps/mobile/components/game/game-feature.tsx`](./apps/mobile/components/game/game-feature.tsx), while the browser client lives in `apps/web/`.
-
-This addresses the design criterion: “Design for mobile from the ground up. Direct ports or PWA wrappers will score poorly.” The APK is neither a direct port of the website nor a PWA wrapped in a WebView.
+Although a web version exists, the APK has its own native interface. The Android game is implemented in [`apps/mobile/components/game/game-feature.tsx`](./apps/mobile/components/game/game-feature.tsx).
 
 ## Playing together: APK + desktop web + mobile web
 
-All three clients can participate in the same rounds: they share the Solana program and each room's accounts. Players do not need to be on the same Wi-Fi network.
+All three clients can participate in the same rounds: they share the Solana program and each room's accounts.
 
 1. Each player opens their client:
    - **Android:** install and open the APK, then connect a wallet compatible with Mobile Wallet Adapter.
